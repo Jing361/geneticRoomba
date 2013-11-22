@@ -27,27 +27,38 @@ class TunedRobot(RealisticRobot):
     state is allowed in the form of a number.
   """
   
-  def __init__(self,room,speed, start_location = -1, chromosome = None):
+  def __init__(self, room, speed, start_location = -1, chromosome = None):
     super(TunedRobot, self).__init__(room,speed, start_location)
     # Set initial state here you may only store a single number.
     self.state = 0
     # Save chromosome value
-    self.degrees = chromosome
+    thing = getChromosome(room, start_location, .95)
+    self.degrees = thing
       
     
   def runRobot(self):
     (bstate, dirt) = self.percepts
     if(bstate == 'Bump'):
-      self.action = ('TurnRight',135 + self.degrees)
+      self.action = ('TurnRight', self.degrees)
     elif(dirt == 'Dirty'):
-      self.action = ('Suck',None)
+      self.action = ('Suck', None)
     else:
-      self.action = ('Forward',None)
+      self.action = ('Forward', None)
 
 def getChromosome(rooms, start_location, min_clean):
-    
     # Fill me in!
-    return 5
+    population = range(1, 180, 10)
+    metric = []
+    for x in population:
+        metric[x] = runSimulation(num_robots = 1,
+                                   min_clean = min_clean,
+                                   num_trials = 5,
+                                   room = allRooms[6],
+                                   robot_type = TunedRobot,
+                                   #ui_enable = True,
+                                   ui_delay = 0.1,
+                                   chromosome = population[x])
+    return population[metric.index(max(metric))]
         
 ############################################
 ## A few room configurations
