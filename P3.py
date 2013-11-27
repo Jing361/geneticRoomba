@@ -25,7 +25,7 @@ class simBot(RealisticRobot):
   """
   
   def __init__(self, room, speed, start_location = -1, chromosome = None):
-    super(TunedRobot, self).__init__(room,speed, start_location)
+    super(simBot, self).__init__(room,speed, start_location)
     # Set initial state here you may only store a single number.
     self.state = 0
     # Save chromosome value
@@ -66,19 +66,19 @@ class TunedRobot(RealisticRobot):
       self.action = ('Forward', None)
 
 def getChromosome(rooms, start_location, min_clean):
-    # Fill me in!
-    print("getChromosome")
     population = range(1, 180, 10)
     metric = []
     for x in population:
-        metric[x] = runSimulation(num_robots = 1,
-                                  min_clean = min_clean,
-                                  num_trials = 5,
-                                  room = allRooms[6],
-                                  robot_type = simBot,
-                                  #ui_enable = True,
-                                  ui_delay = 0.1,
-                                  chromosome = population[x])
+        print(x)
+        metric[population.index(x)] = runSimulation(num_robots = 1,
+                                                    min_clean = min_clean,
+                                                    num_trials = 3,
+                                                    room = allRooms[6],
+                                                    robot_type = simBot,
+                                                    #ui_enable = True,
+                                                    ui_delay = 0.1,
+                                                    chromosome = x)
+
     return population[metric.index(max(metric))]
         
 ############################################
