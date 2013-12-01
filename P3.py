@@ -1,4 +1,4 @@
-# H1.py
+# P3.py
 # Author: Paul Talaga
 # 
 # This file demonstrates how to implement various kinds of Roomba robot agents
@@ -70,14 +70,22 @@ def getChromosome(rooms, start_location, min_clean):
     metric = []
     for x in population:
         print(x)
-        metric[population.index(x)] = runSimulation(num_robots = 1,
-                                                    min_clean = min_clean,
-                                                    num_trials = 3,
-                                                    room = allRooms[6],
-                                                    robot_type = simBot,
-                                                    #ui_enable = True,
-                                                    ui_delay = 0.1,
-                                                    chromosome = x)
+#        metric[population.index(x)] = runSimulation(num_robots = 1,
+#                                                    min_clean = min_clean,
+#                                                    num_trials = 3,
+#                                                    room = allRooms[6],
+#                                                    robot_type = simBot,
+#                                                    #ui_enable = True,
+#                                                    ui_delay = 0.1,
+#                                                    chromosome = x)
+        metric.append( runSimulation(num_robots = 1,
+                                     min_clean = min_clean,
+                                     num_trials = 3,
+                                     room = allRooms[6],
+                                     robot_type = simBot,
+                                     #ui_enable = True,
+                                     ui_delay = 0.1,
+                                     chromosome = x))
 
     return population[metric.index(max(metric))]
         
