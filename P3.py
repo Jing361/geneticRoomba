@@ -10,6 +10,10 @@ from roomba_concurrent import *
 
 import random
 import math
+try:
+  import Queue
+except ImportError:
+  import queue as Queue
 
 # Each robot below should be a subclass of ContinuousRobot, RealisticRobot, or DiscreteRobot.
 # All robots need to implement the runRobot(self) member function, as this is where
@@ -73,14 +77,15 @@ def getChromosome(rooms, start_location, min_clean):
     metric = {}
     use = 0
     while len(population) > 1:
-        population, use = runTests(population, start_location, min_clean)
+        population = runTests(population, start_location, min_clean)
 
-    print("Using: %d" % use)
-    return use
+    print("Using: %d" % population[0])
+    return population[0]
 
 def runTests(population, start_location, min_clean):
     least = 999999
-    use = 0
+    fitnessQueue = Queue.PriorityQueue()
+    print(population)
     for x in population:
         print("Testing angle: %d" % x)
         temp = concurrent_test(robot = simBot,
@@ -90,18 +95,35 @@ def runTests(population, start_location, min_clean):
                                min_clean = .6,
                                chromosome = x,
                                timeout = 60)
-        if temp < least:
-            least = temp
-            use = x
-    return cullPop(population), use
+        #temp is the performance, x is the angle must group the two so that cullPop can cull the worst
+        #performing angles.
+        fitnessQueue.put((temp,x))
+        #if temp < least:
+        #    least = temp
+        #    use = x
+    print("qsize: %d" % fitnessQueue.qsize())
+    #return cullPop(population), use
+    return cullPop(fitnessQueue)
         
-def cullPop(population):
-    size = len(population)
-    end = math.ceil(.3 * size)
+def cullPop(fitnessQueue):
+    #size = len(fitnessQueue)
+    size = fitnessQueue.qsize()
+    end = int(math.ceil(.3 * size))
+    top = int(math.ceil(0.10 * size))
     print("Size: %f and end: %f" % (size, end))
-    newPop = population[0:size - end]
+    newPop = []
+    toBreed = []
+    for x in range(0, size - end):
+        if x < top:
+            newPop.append(fitnessQueue.get()[1])
+        else:
+            toBreed.append(fitnessQueue.get()[1])
+    newPop.extend(breed(toBreed))
     return newPop
 
+def breed(pop):
+    newPop = pop
+    return newPop
 ############################################
 ## A few room configurations
 
