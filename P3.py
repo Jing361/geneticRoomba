@@ -73,7 +73,7 @@ class TunedRobot(RealisticRobot):
       self.action = ('Forward', None)
 
 def getChromosome(rooms, start_location, min_clean):
-    population = range(50, 160, 15)
+    population = range(50, 350, 10)
     metric = {}
     use = 0
     while len(population) > 1:
@@ -85,6 +85,7 @@ def getChromosome(rooms, start_location, min_clean):
 def runTests(population, start_location, min_clean):
     least = 999999
     fitnessQueue = Queue.PriorityQueue()
+    print("Fitness testing")
     print(population)
     for x in population:
         print("Testing angle: %d" % x)
@@ -94,22 +95,22 @@ def runTests(population, start_location, min_clean):
                                start_location = start_location,
                                min_clean = .6,
                                chromosome = x,
-                               timeout = 60)
+                               timeout = 15)
         #temp is the performance, x is the angle must group the two so that cullPop can cull the worst
         #performing angles.
         fitnessQueue.put((temp,x))
         #if temp < least:
         #    least = temp
         #    use = x
-    print("qsize: %d" % fitnessQueue.qsize())
+    print("Queue size: %d" % fitnessQueue.qsize())
     #return cullPop(population), use
     return cullPop(fitnessQueue)
         
 def cullPop(fitnessQueue):
     #size = len(fitnessQueue)
     size = fitnessQueue.qsize()
-    end = int(math.ceil(.3 * size))
-    top = int(math.ceil(0.10 * size))
+    end = int(math.ceil(0.30 * size))#euthenasia
+    top = int(math.ceil(0.10 * size))#proletariat
     print("Size: %f and end: %f" % (size, end))
     newPop = []
     toBreed = []
@@ -122,8 +123,20 @@ def cullPop(fitnessQueue):
     return newPop
 
 def breed(pop):
-    newPop = pop
+    print("Breeding")
+    print(pop)
+    newPop = []
+    x = 0
+    while x < len(pop):
+        if x + 1 < len(pop):
+            newPop.append((pop[x] + pop[x + 1]) / 2)
+        else:
+            newPop.append(pop[x])
+        x += 2
     return newPop
+
+def mutate(val):
+    return val
 ############################################
 ## A few room configurations
 
