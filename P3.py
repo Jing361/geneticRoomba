@@ -70,14 +70,14 @@ class TunedRobot(RealisticRobot):
 def getChromosome(rooms, start_location, min_clean):
     population = range(50, 160, 15)
     metric = []
-    least = 99999
+    least = 999999
     use = 0
     for x in population:
         print("Testing angle: %d" % x)
         temp = concurrent_test(robot = simBot,
                                rooms = allRooms[0:3],
-                               num_trials = 3,
-                               min_clean = min_clean - .4,
+                               num_trials = 1,
+                               min_clean = min_clean - .3,
                                chromosome = x,
                                timeout = 60)
         if temp < least:
@@ -127,24 +127,31 @@ mediumWalls5Room.setWall((7,5), (7,22))
 allRooms.append(mediumWalls5Room) # [6]
 
 #############################################    
-def TunedTest():
-  random.seed(None)
-  num = random.randrange(0, 6, 1)
+def TunedTest(num):
   print("Robot Results:")
   print(runSimulation(num_robots = 1,
-                    min_clean = 0.95,
-                    num_trials = 1,
-                    room = allRooms[num],
-                    robot_type = TunedRobot,
-                    #ui_enable = True,
-                    ui_delay = 0.1,
-                    chromosome = 0))
-  print("Testing: %d" % num)
+                      min_clean = 0.95,
+                      num_trials = 1,
+                      room = allRooms[num],
+                      robot_type = TunedRobot,
+                      chromosome = 0))
                     
+def runDefault(num):
+    print("Default robot result:")
+    print(runSimulation(num_robots = 1,
+                        min_clean = 0.95,
+                        num_trials = 1,
+                        room = allRooms[num],
+                        robot_type = simBot,
+                        chromosome = 135))
 
 if __name__ == "__main__":
   # This code will be run if this file is called on its own
-  TunedTest()
+  random.seed(None)
+  num = random.randrange(0, 6, 1)
+  TunedTest(num)
+  runDefault(num)
+  print("Testing: %d" % num)
   
   # This is an example of how we will test your program.  Our rooms will not be those listed above, but similar.
   #rooms = [allRooms[1], allRooms[5]]
