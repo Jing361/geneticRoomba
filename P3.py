@@ -9,6 +9,7 @@ from roomba_sim import *
 from roomba_concurrent import *
 
 import random
+import math
 
 # Each robot below should be a subclass of ContinuousRobot, RealisticRobot, or DiscreteRobot.
 # All robots need to implement the runRobot(self) member function, as this is where
@@ -50,7 +51,7 @@ class TunedRobot(RealisticRobot):
   """
   
   def __init__(self, room, speed, start_location = -1, chromosome = None):
-    super(TunedRobot, self).__init__(room,speed, start_location)
+    super(TunedRobot, self).__init__(room, speed, start_location)
     # Set initial state here you may only store a single number.
     self.state = 0
     # Save chromosome value
@@ -69,24 +70,38 @@ class TunedRobot(RealisticRobot):
 
 def getChromosome(rooms, start_location, min_clean):
     population = range(50, 160, 15)
-    metric = []
+    metric = {}
+    use = 0
+    while len(population) > 1:
+        population, use = runTests(population, start_location, min_clean)
+
+    print("Using: %d" % use)
+    return use
+
+def runTests(population, start_location, min_clean):
     least = 999999
     use = 0
     for x in population:
         print("Testing angle: %d" % x)
         temp = concurrent_test(robot = simBot,
-                               rooms = allRooms[0:3],
+                               rooms = allRooms[0:2],
                                num_trials = 1,
-                               min_clean = min_clean - .3,
+                               start_location = start_location,
+                               min_clean = .6,
                                chromosome = x,
                                timeout = 60)
         if temp < least:
             least = temp
             use = x
-
-    print("Using: %d" % use)
-    return use
+    return cullPop(population), use
         
+def cullPop(population):
+    size = len(population)
+    end = math.ceil(.3 * size)
+    print("Size: %f and end: %f" % (size, end))
+    newPop = population[0:size - end]
+    return newPop
+
 ############################################
 ## A few room configurations
 
