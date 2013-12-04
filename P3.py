@@ -8,6 +8,8 @@
 from roomba_sim import *
 from roomba_concurrent import *
 
+import random
+
 # Each robot below should be a subclass of ContinuousRobot, RealisticRobot, or DiscreteRobot.
 # All robots need to implement the runRobot(self) member function, as this is where
 # you will define that specific robot's characteristics.
@@ -66,28 +68,24 @@ class TunedRobot(RealisticRobot):
       self.action = ('Forward', None)
 
 def getChromosome(rooms, start_location, min_clean):
-    population = range(1, 180, 10)
+    population = range(50, 160, 15)
     metric = []
+    least = 99999
+    use = 0
     for x in population:
-        print(x)
-#        metric[population.index(x)] = runSimulation(num_robots = 1,
-#                                                    min_clean = min_clean,
-#                                                    num_trials = 3,
-#                                                    room = allRooms[6],
-#                                                    robot_type = simBot,
-#                                                    #ui_enable = True,
-#                                                    ui_delay = 0.1,
-#                                                    chromosome = x)
-        metric.append( runSimulation(num_robots = 1,
-                                     min_clean = min_clean,
-                                     num_trials = 3,
-                                     room = allRooms[6],
-                                     robot_type = simBot,
-                                     #ui_enable = True,
-                                     ui_delay = 0.1,
-                                     chromosome = x))
+        print("Testing angle: %d" % x)
+        temp = concurrent_test(robot = simBot,
+                               rooms = allRooms[0:3],
+                               num_trials = 3,
+                               min_clean = min_clean - .4,
+                               chromosome = x,
+                               timeout = 60)
+        if temp < least:
+            least = temp
+            use = x
 
-    return population[metric.index(max(metric))]
+    print("Using: %d" % use)
+    return use
         
 ############################################
 ## A few room configurations
@@ -129,32 +127,24 @@ mediumWalls5Room.setWall((7,5), (7,22))
 allRooms.append(mediumWalls5Room) # [6]
 
 #############################################    
-def TunedTest1():
+def TunedTest():
+  random.seed(None)
+  num = random.randrange(0, 6, 1)
+  print("Robot Results:")
   print(runSimulation(num_robots = 1,
                     min_clean = 0.95,
                     num_trials = 1,
-                    room = allRooms[6],
+                    room = allRooms[num],
                     robot_type = TunedRobot,
                     #ui_enable = True,
                     ui_delay = 0.1,
                     chromosome = 0))
+  print("Testing: %d" % num)
                     
-def TunedTest2():
-  print(runSimulation(num_robots = 1,
-                    min_clean = 0.95,
-                    num_trials = 1,
-                    room = allRooms[6],
-                    robot_type = TunedRobot,
-                    #ui_enable = True,
-                    ui_delay = 0.1,
-                    chromosome = 2))                  
-
-
 
 if __name__ == "__main__":
   # This code will be run if this file is called on its own
-  TunedTest1()
-  #TunedTest2()
+  TunedTest()
   
   # This is an example of how we will test your program.  Our rooms will not be those listed above, but similar.
   #rooms = [allRooms[1], allRooms[5]]
