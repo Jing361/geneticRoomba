@@ -73,13 +73,13 @@ class TunedRobot(RealisticRobot):
       self.action = ('Forward', None)
 
 def getChromosome(rooms, start_location, min_clean):
-    population = range(50, 350, 10)
+    population = range(40, 151, 5)
     metric = {}
     use = 0
     while len(population) > 1:
         population = runTests(population, start_location, min_clean)
 
-    print("Using: %d" % population[0])
+    print("Using: %.2f" % population[0])
     return population[0]
 
 def runTests(population, start_location, min_clean):
@@ -88,30 +88,23 @@ def runTests(population, start_location, min_clean):
     print("Fitness testing")
     print(population)
     for x in population:
-        print("Testing angle: %d" % x)
+        print("Testing angle: %.2f" % x)
         temp = concurrent_test(robot = simBot,
                                rooms = allRooms[0:2],
                                num_trials = 1,
                                start_location = start_location,
                                min_clean = .6,
                                chromosome = x,
-                               timeout = 15)
+                               timeout = 10)
         #temp is the performance, x is the angle must group the two so that cullPop can cull the worst
         #performing angles.
-        fitnessQueue.put((temp,x))
-        #if temp < least:
-        #    least = temp
-        #    use = x
-    print("Queue size: %d" % fitnessQueue.qsize())
-    #return cullPop(population), use
+        fitnessQueue.put((temp, x))
     return cullPop(fitnessQueue)
         
 def cullPop(fitnessQueue):
-    #size = len(fitnessQueue)
     size = fitnessQueue.qsize()
     end = int(math.ceil(0.30 * size))#euthenasia
     top = int(math.ceil(0.10 * size))#proletariat
-    print("Size: %f and end: %f" % (size, end))
     newPop = []
     toBreed = []
     for x in range(0, size - end):
@@ -129,13 +122,20 @@ def breed(pop):
     x = 0
     while x < len(pop):
         if x + 1 < len(pop):
-            newPop.append((pop[x] + pop[x + 1]) / 2)
+            newPop.append(mutate((sorted(pop)[x] + sorted(pop)[x + 1]) / 2))
         else:
-            newPop.append(pop[x])
+            newPop.append(mutate(sorted(pop)[x]))
         x += 2
     return newPop
 
 def mutate(val):
+    most = 5.0
+    resolution = 100.0
+    num = random.randrange(0, most * resolution, 1)
+    num /= resolution
+    num -= most / 2
+    print("Mutating %.2f by %.2f" % (val, num))
+    val += num
     return val
 ############################################
 ## A few room configurations
@@ -201,7 +201,7 @@ if __name__ == "__main__":
   num = random.randrange(0, 6, 1)
   TunedTest(num)
   runDefault(num)
-  print("Testing: %d" % num)
+  print("Testing: %.2f" % num)
   
   # This is an example of how we will test your program.  Our rooms will not be those listed above, but similar.
   #rooms = [allRooms[1], allRooms[5]]
